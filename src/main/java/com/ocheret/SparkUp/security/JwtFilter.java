@@ -1,6 +1,7 @@
 package com.ocheret.SparkUp.security;
 
 import com.ocheret.SparkUp.service.UserDetailsServiceImpl;
+import io.jsonwebtoken.JwtException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,8 +37,17 @@ public class JwtFilter extends OncePerRequestFilter {
 
             // Check if the Authorization header contains a Bearer token
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
-                jwt = authorizationHeader.substring(7);
-                username = jwtUtil.extractUsername(jwt);
+                jwt = authorizationHeader.substring(7);  // Remove "Bearer " prefix
+                System.out.println("token: " + jwt);
+
+                try {
+                    // Extract username from the token
+                    username = jwtUtil.extractUsername(jwt);
+                    System.out.println("username" + username);
+                } catch (JwtException e) {
+                    // Log or handle the exception if the JWT is invalid
+                    System.out.println("Invalid JWT token: " + e.getMessage());
+                }
             }
 
             // Validate the JWT and the user is not authenticated yet
@@ -47,7 +57,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
                 // If the token is valid, authenticate the user
                 if (jwtUtil.validateToken(jwt, userDetails.getUsername())) {
-
+                    System.out.println("token validating ... ");
                     UsernamePasswordAuthenticationToken authenticationToken =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 
