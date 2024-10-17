@@ -1,7 +1,8 @@
 package com.ocheret.SparkUp.security;
 
 
-import com.ocheret.SparkUp.service.UserDetailsServiceImpl;
+import com.ocheret.SparkUp.entity.CustomUserDetailsService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -34,8 +35,10 @@ public class SecurityConfig {
         return new Argon2PasswordEncoder(saltLength, hashLength, parallelism, memoryCost, iterations);
     }
 
+    @Autowired
+    private JwtFilter jwtFilter;  // Define the security filter chain configuration
 
-    // Define the security filter chain configuration
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -46,7 +49,8 @@ public class SecurityConfig {
                         .anyRequest().authenticated()  // All other requests require authentication
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));  // Use stateless session for JWT
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))  // Use stateless session for JWT
+                .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }

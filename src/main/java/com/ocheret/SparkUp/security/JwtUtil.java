@@ -24,7 +24,7 @@ public class JwtUtil {
     }
 
     public <T> T extractClaim(String token, Function<Claims, T> claimsResolver) {
-        final Claims claims = Jwts.parser().setSigningKey(secret).parseClaimsJws(token).getBody();
+        final Claims claims = Jwts.parser().setSigningKey(secret.getBytes()).parseClaimsJws(token).getBody();
         return claimsResolver.apply(claims);
     }
 
@@ -37,7 +37,7 @@ public class JwtUtil {
                 .setSubject(username)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
                 .setExpiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10)) // 10 hours expiration
-                .signWith(SignatureAlgorithm.HS256, secret.getBytes())
+                .signWith(SignatureAlgorithm.HS512, secret.getBytes())
                 .compact();
     }
 

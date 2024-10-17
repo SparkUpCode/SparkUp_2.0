@@ -1,16 +1,18 @@
 package com.ocheret.SparkUp.security;
 
-import com.ocheret.SparkUp.service.UserDetailsServiceImpl;
+import com.ocheret.SparkUp.entity.CustomUserDetailsService;
 import io.jsonwebtoken.JwtException;
+import org.hibernate.internal.CoreLogging;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetailsSource;
 import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
-import javax.servlet.FilterChain;
+import jakarta.servlet.FilterChain;
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -23,7 +25,7 @@ public class JwtFilter extends OncePerRequestFilter {
     private JwtUtil jwtUtil;
 
     @Autowired
-    private UserDetailsServiceImpl userDetailsService;
+    private UserDetailsService userDetailsService;
 
     @Override
     protected void doFilterInternal(jakarta.servlet.http.HttpServletRequest request, jakarta.servlet.http.HttpServletResponse response, jakarta.servlet.FilterChain filterChain) throws jakarta.servlet.ServletException, IOException {
@@ -31,7 +33,7 @@ public class JwtFilter extends OncePerRequestFilter {
 
             // Get the Authorization header
             final String authorizationHeader = request.getHeader("Authorization");
-
+            System.out.println("here");
             String username = null;
             String jwt = null;
 
@@ -39,6 +41,7 @@ public class JwtFilter extends OncePerRequestFilter {
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
                 jwt = authorizationHeader.substring(7);  // Remove "Bearer " prefix
                 System.out.println("token: " + jwt);
+
 
                 try {
                     // Extract username from the token
@@ -58,6 +61,18 @@ public class JwtFilter extends OncePerRequestFilter {
                 // If the token is valid, authenticate the user
                 if (jwtUtil.validateToken(jwt, userDetails.getUsername())) {
                     System.out.println("token validating ... ");
+                    UsernamePasswordAuthenticationToken authenticationToken =
+                            new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+
+                    authenticationToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
+                    SecurityContextHolder.getContext().setAuthentication(authenticationToken);
+                }
+            }
+
+            if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
+                UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+
+                if (jwtUtil.validateToken(jwt, userDetails.getUsername())) {
                     UsernamePasswordAuthenticationToken authenticationToken =
                             new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
 

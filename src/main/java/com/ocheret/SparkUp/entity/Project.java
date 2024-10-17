@@ -7,6 +7,7 @@ import org.hibernate.annotations.CreationTimestamp;
 import org.hibernate.annotations.UpdateTimestamp;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -23,9 +24,9 @@ public class Project {
     @JoinColumn(name = "owner_id")
     private User owner;
 
-    private String skillsRequired;  // This can be a comma-separated string or another entity
+    private List<String> skillsRequired;  // This can be a comma-separated string or another entity
 
-    private String technologies;  // Same as above
+    private List<String> technologies;  // Same as above
 
     @CreationTimestamp
     private LocalDateTime createdAt;
@@ -65,19 +66,19 @@ public class Project {
         this.owner = owner;
     }
 
-    public String getSkillsRequired() {
-        return skillsRequired.toString();
+    public List<String> getSkillsRequired() {
+        return skillsRequired;
     }
 
-    public void setSkillsRequired(String skillsRequired) {
+    public void setSkillsRequired(List<String> skillsRequired) {
         this.skillsRequired = skillsRequired;
     }
 
-    public String getTechnologies() {
-        return technologies.toString();
+    public List<String> getTechnologies() {
+        return technologies;
     }
 
-    public void setTechnologies(String technologies) {
+    public void setTechnologies(List<String> technologies) {
         this.technologies = technologies;
     }
 
@@ -96,5 +97,6 @@ public class Project {
     public void setUpdatedAt(LocalDateTime updatedAt) {
         this.updatedAt = updatedAt;
     }
-// Getters and setters
+
+    // Getters and setters
 }

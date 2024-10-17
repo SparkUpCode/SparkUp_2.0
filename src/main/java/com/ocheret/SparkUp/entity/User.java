@@ -2,6 +2,8 @@ package com.ocheret.SparkUp.entity;
 
 import jakarta.persistence.*;
 
+import java.util.List;
+
 
 @Entity
 @Table(name = "users")
@@ -38,11 +40,11 @@ public class User {
         this.password = password;
     }
 
-    public String getRoles() {
+    public List<String> getRoles() {
         return roles;
     }
 
-    public void setRoles(String roles) {
+    public void setRoles(List<String> roles) {
         this.roles = roles;
     }
 
@@ -52,7 +54,7 @@ public class User {
     private String username;
     private String email;
     private String password;
-    private String roles; // Could be a comma-separated list like "ROLE_USER,ROLE_ADMIN"
+    private List<String> roles; // Could be a comma-separated list like "ROLE_USER,ROLE_ADMIN"
 
     // Getters and Setters
 }
