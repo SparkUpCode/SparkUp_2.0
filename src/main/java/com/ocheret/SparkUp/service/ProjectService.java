@@ -79,18 +79,26 @@ public class ProjectService {
             List<Task> tasksToAdd = taskUpdates.get("add").stream()
                     .map(this::convertMapToTask)
                     .collect(Collectors.toList());
-            project.getTasks().addAll(tasksToAdd);  // Modify in-place by adding new tasks
+            project.getTasks().addAll(tasksToAdd);  // Add tasks directly to the project’s task list
         }
+
         if (taskUpdates.containsKey("remove")) {
+            // Convert the task IDs to remove into Longs
             List<Long> idsToRemove = taskUpdates.get("remove").stream()
                     .map(map -> convertToLong(map.get("id")))
                     .collect(Collectors.toList());
-            project.getTasks().removeIf(task -> idsToRemove.contains(task.getId())); // Modify in-place by removing tasks
+
+            // Filter the project’s tasks, keeping only those not in the idsToRemove list
+            // and ensuring only tasks that belong to the project are removed
+            project.getTasks().removeIf(task -> idsToRemove.contains(task.getId()));
         }
+
         if (taskUpdates.containsKey("update")) {
             List<Task> tasksToUpdate = taskUpdates.get("update").stream()
                     .map(this::convertMapToTask)
                     .collect(Collectors.toList());
+
+            // Update only the tasks that exist in the project's task list
             project.getTasks().forEach(existingTask -> {
                 tasksToUpdate.stream()
                         .filter(newTask -> newTask.getId().equals(existingTask.getId()))
@@ -103,7 +111,6 @@ public class ProjectService {
             });
         }
     }
-
     private Long convertToLong(Object id) {
         if (id instanceof Integer) {
             return ((Integer) id).longValue(); // Convert Integer to Long
