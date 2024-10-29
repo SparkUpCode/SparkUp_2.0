@@ -19,7 +19,17 @@ import org.springframework.security.web.csrf.CookieCsrfTokenRepository;
 
 @Configuration
 @EnableWebSecurity
-public class SecurityConfig {
+public class SecurityConfig  {
+
+    @Bean
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        // Disables authentication and CSRF for all endpoints
+        http
+                .csrf(csrf -> csrf.disable()) // Disable CSRF
+                .authorizeHttpRequests(auth -> auth
+                        .anyRequest().permitAll()); // Allow all requests without authentication
+        return http.build();
+    }
 
     // Configure Argon2PasswordEncoder as the password encoder
     @Bean
@@ -34,23 +44,23 @@ public class SecurityConfig {
         return new Argon2PasswordEncoder(saltLength, hashLength, parallelism, memoryCost, iterations);
     }
 
-
-    // Define the security filter chain configuration
-    @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        http
-                .csrf(csrf -> csrf.disable())  // Disable CSRF for API requests
-                .authorizeHttpRequests(auth -> auth
-                        .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()  // Permit login and register
-                        .anyRequest().authenticated()  // All other requests require authentication
-                )
-                .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));  // Use stateless session for JWT
-
-        return http.build();
-    }
-
-    // Provide AuthenticationManager for authentication
+//
+//    // Define the security filter chain configuration
+//    @Bean
+//    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+//        http
+//                .csrf(csrf -> csrf.disable())  // Disable CSRF for API requests
+//                .authorizeHttpRequests(auth -> auth
+//                        .requestMatchers("/api/auth/login", "/api/auth/register").permitAll()  // Permit login and register
+//                        .anyRequest().authenticated()  // All other requests require authentication
+//                )
+//                .sessionManagement(session -> session
+//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS));  // Use stateless session for JWT
+//
+//        return http.build();
+//    }
+//
+//    // Provide AuthenticationManager for authentication
     @Bean
     public AuthenticationManager authenticationManager(AuthenticationConfiguration authenticationConfiguration) throws Exception {
         return authenticationConfiguration.getAuthenticationManager();
