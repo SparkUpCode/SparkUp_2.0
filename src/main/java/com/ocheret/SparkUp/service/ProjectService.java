@@ -25,7 +25,7 @@ public class ProjectService {
     @Autowired
     private ObjectMapper objectMapper;
 
-    private final String placeholderImage = "/images/placeholder.jpeg";
+    private final String placeholderImage = "/images/placeholder.webp";
 
     public Project createProject(Project project) {
         List<String> updatedPictures = project.getPictures().stream()
