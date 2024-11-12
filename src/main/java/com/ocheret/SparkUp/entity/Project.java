@@ -17,6 +17,9 @@ public class Project {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks;
     private String linkToProject;
+    @ManyToOne
+    @JoinColumn(name = "owner_id")
+    private User owner;
 
     public String getLinkToProject() {
         return linkToProject;
@@ -64,6 +67,14 @@ public class Project {
 
     public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
+    }
+
+    public User getOwner() {
+        return owner;
+    }
+
+    public void setOwner(User owner) {
+        this.owner = owner;
     }
 // Getters and Setters
 }

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ocheret.SparkUp.entity.Project;
 import com.ocheret.SparkUp.entity.Task;
 import com.ocheret.SparkUp.repository.ProjectRepository;
+import com.ocheret.SparkUp.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -11,6 +12,7 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -24,6 +26,12 @@ public class ProjectService {
 
     @Autowired
     private ObjectMapper objectMapper;
+
+    @Autowired
+    private NotificationService notificationService;
+
+    @Autowired
+    private UserRepository userRepository;
 
     private final String placeholderImage = "/images/placeholder.webp";
 
@@ -98,15 +106,29 @@ public class ProjectService {
                     .map(this::convertMapToTask)
                     .collect(Collectors.toList());
 
-            // Update only the tasks that exist in the project's task list
             project.getTasks().forEach(existingTask -> {
                 tasksToUpdate.stream()
                         .filter(newTask -> newTask.getId().equals(existingTask.getId()))
                         .findFirst()
                         .ifPresent(newTask -> {
+                            boolean wasCompleted = !existingTask.isCompleted() && newTask.isCompleted();
+                            
                             existingTask.setTitle(newTask.getTitle());
                             existingTask.setDescription(newTask.getDescription());
                             existingTask.setCompleted(newTask.isCompleted());
+                            
+                            if (wasCompleted) {
+                                if (newTask.getCompletionComment() == null || newTask.getCompletionLink() == null) {
+                                    throw new IllegalArgumentException("Completion comment and link are required when completing a task");
+                                }
+                                
+                                existingTask.setCompletionComment(newTask.getCompletionComment());
+                                existingTask.setCompletionLink(newTask.getCompletionLink());
+                                existingTask.setCompletedAt(LocalDateTime.now());
+                                
+                                // Notify project owner
+                                notificationService.createTaskCompletionNotification(existingTask, project, project.getOwner());
+                            }
                         });
             });
         }
