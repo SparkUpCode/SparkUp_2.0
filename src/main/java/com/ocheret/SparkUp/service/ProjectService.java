@@ -3,8 +3,10 @@ package com.ocheret.SparkUp.service;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ocheret.SparkUp.entity.Project;
 import com.ocheret.SparkUp.entity.Task;
+import com.ocheret.SparkUp.entity.User;
 import com.ocheret.SparkUp.repository.ProjectRepository;
 import com.ocheret.SparkUp.repository.UserRepository;
+import com.ocheret.SparkUp.exception.TaskStateException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -83,24 +85,6 @@ public class ProjectService {
     }
 
     private void updateTasks(Project project, Map<String, List<Map<String, Object>>> taskUpdates) {
-        if (taskUpdates.containsKey("add")) {
-            List<Task> tasksToAdd = taskUpdates.get("add").stream()
-                    .map(this::convertMapToTask)
-                    .collect(Collectors.toList());
-            project.getTasks().addAll(tasksToAdd);  // Add tasks directly to the project’s task list
-        }
-
-        if (taskUpdates.containsKey("remove")) {
-            // Convert the task IDs to remove into Longs
-            List<Long> idsToRemove = taskUpdates.get("remove").stream()
-                    .map(map -> convertToLong(map.get("id")))
-                    .collect(Collectors.toList());
-
-            // Filter the project’s tasks, keeping only those not in the idsToRemove list
-            // and ensuring only tasks that belong to the project are removed
-            project.getTasks().removeIf(task -> idsToRemove.contains(task.getId()));
-        }
-
         if (taskUpdates.containsKey("update")) {
             List<Task> tasksToUpdate = taskUpdates.get("update").stream()
                     .map(this::convertMapToTask)
@@ -113,10 +97,6 @@ public class ProjectService {
                         .ifPresent(newTask -> {
                             boolean wasCompleted = !existingTask.isCompleted() && newTask.isCompleted();
                             
-                            existingTask.setTitle(newTask.getTitle());
-                            existingTask.setDescription(newTask.getDescription());
-                            existingTask.setCompleted(newTask.isCompleted());
-                            
                             if (wasCompleted) {
                                 if (newTask.getCompletionComment() == null || newTask.getCompletionLink() == null) {
                                     throw new IllegalArgumentException("Completion comment and link are required when completing a task");
@@ -125,14 +105,71 @@ public class ProjectService {
                                 existingTask.setCompletionComment(newTask.getCompletionComment());
                                 existingTask.setCompletionLink(newTask.getCompletionLink());
                                 existingTask.setCompletedAt(LocalDateTime.now());
+                                existingTask.setStatus(Task.TaskStatus.COMPLETED_PENDING_APPROVAL);
                                 
                                 // Notify project owner
                                 notificationService.createTaskCompletionNotification(existingTask, project, project.getOwner());
                             }
+                            
+                            existingTask.setTitle(newTask.getTitle());
+                            existingTask.setDescription(newTask.getDescription());
+                            existingTask.setCompleted(newTask.isCompleted());
                         });
             });
         }
     }
+
+    public void approveTask(Long projectId, Long taskId, User currentUser) {
+        Project project = getProjectById(projectId);
+        if (project == null) {
+            throw new TaskStateException("Project not found");
+        }
+
+        // Check if current user is the project owner
+        if (!project.getOwner().getId().equals(currentUser.getId())) {
+            throw new TaskStateException("Only project owner can approve tasks");
+        }
+
+        Task task = project.getTasks().stream()
+                .filter(t -> t.getId().equals(taskId))
+                .findFirst()
+                .orElseThrow(() -> new TaskStateException("Task not found"));
+
+        if (task.getStatus() != Task.TaskStatus.COMPLETED_PENDING_APPROVAL) {
+            throw new TaskStateException("Task is not pending approval. Current status: " + task.getStatus());
+        }
+
+        task.setStatus(Task.TaskStatus.COMPLETED);
+        projectRepository.save(project);
+        notificationService.createTaskApprovalNotification(task, project);
+    }
+
+    public void denyTask(Long projectId, Long taskId, String denialComment) {
+        if (denialComment == null || denialComment.trim().isEmpty()) {
+            throw new IllegalArgumentException("Denial comment is required");
+        }
+
+        Project project = getProjectById(projectId);
+        if (project == null) {
+            throw new RuntimeException("Project not found");
+        }
+
+        Task task = project.getTasks().stream()
+                .filter(t -> t.getId().equals(taskId))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("Task not found"));
+
+        if (task.getStatus() != Task.TaskStatus.COMPLETED_PENDING_APPROVAL) {
+            throw new IllegalStateException("Task is not pending approval");
+        }
+
+        task.setStatus(Task.TaskStatus.ACTIVE);
+        task.setCompleted(false);
+        task.setDenialComment(denialComment);
+        projectRepository.save(project);
+        notificationService.createTaskDenialNotification(task, project, denialComment);
+    }
+
     private Long convertToLong(Object id) {
         if (id instanceof Integer) {
             return ((Integer) id).longValue(); // Convert Integer to Long

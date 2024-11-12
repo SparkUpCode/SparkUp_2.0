@@ -25,6 +25,17 @@ public class Task {
     @JoinColumn(name = "project_id")
     private Project project;
 
+    private TaskStatus status = TaskStatus.ACTIVE;
+    private String denialComment;
+    private LocalDateTime lastStatusChange;
+
+    public enum TaskStatus {
+        ACTIVE,
+        COMPLETED_PENDING_APPROVAL,
+        COMPLETED,
+        DENIED
+    }
+
     // Getters and Setters
 
     public Long getId() {
@@ -81,5 +92,30 @@ public class Task {
 
     public void setCompletedAt(LocalDateTime completedAt) {
         this.completedAt = completedAt;
+    }
+
+    public TaskStatus getStatus() {
+        return status;
+    }
+
+    public void setStatus(TaskStatus status) {
+        this.status = status;
+        this.lastStatusChange = LocalDateTime.now();
+    }
+
+    public String getDenialComment() {
+        return denialComment;
+    }
+
+    public void setDenialComment(String denialComment) {
+        this.denialComment = denialComment;
+    }
+
+    public LocalDateTime getLastStatusChange() {
+        return lastStatusChange;
+    }
+
+    public void setLastStatusChange(LocalDateTime lastStatusChange) {
+        this.lastStatusChange = lastStatusChange;
     }
 }

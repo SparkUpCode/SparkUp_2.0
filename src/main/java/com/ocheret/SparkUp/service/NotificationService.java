@@ -38,4 +38,28 @@ public class NotificationService {
             .map(user -> notificationRepository.findByUserOrderByCreatedAtDesc(user))
             .orElse(Collections.emptyList());
     }
+
+    public void createTaskApprovalNotification(Task task, Project project) {
+        Notification notification = new Notification();
+        notification.setUser(project.getOwner());
+        notification.setProject(project);
+        notification.setTask(task);
+        notification.setMessage("Task '" + task.getTitle() + "' has been approved");
+        notification.setCreatedAt(LocalDateTime.now());
+        notification.setRead(false);
+        
+        notificationRepository.save(notification);
+    }
+
+    public void createTaskDenialNotification(Task task, Project project, String denialComment) {
+        Notification notification = new Notification();
+        notification.setUser(project.getOwner());
+        notification.setProject(project);
+        notification.setTask(task);
+        notification.setMessage("Task '" + task.getTitle() + "' has been denied. Reason: " + denialComment);
+        notification.setCreatedAt(LocalDateTime.now());
+        notification.setRead(false);
+        
+        notificationRepository.save(notification);
+    }
 } 
