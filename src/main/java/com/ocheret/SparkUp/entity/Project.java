@@ -10,15 +10,21 @@ public class Project {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     private String title;
     private String description;
-
     @ElementCollection
     private List<String> pictures;
-
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks;
+    private String linkToProject;
+
+    public String getLinkToProject() {
+        return linkToProject;
+    }
+
+    public void setLinkToProject(String linkToProject) {
+        this.linkToProject = linkToProject;
+    }
 
     public Long getId() {
         return id;

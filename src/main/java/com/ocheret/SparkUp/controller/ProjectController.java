@@ -1,12 +1,14 @@
 package com.ocheret.SparkUp.controller;
 
 import com.ocheret.SparkUp.entity.Project;
+import com.ocheret.SparkUp.service.LinkVerificationService;
 import com.ocheret.SparkUp.service.ProjectService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -14,13 +16,25 @@ import java.util.Map;
 @RequestMapping("/api/projects")
 public class ProjectController {
 
+    private final LinkVerificationService linkVerificationService;
+
     @Autowired
     private ProjectService projectService;
+    public ProjectController(LinkVerificationService linkVerificationService) {
+        this.linkVerificationService = linkVerificationService;
+    }
 
     @PostMapping
-    public ResponseEntity<Project> createProject(@RequestBody Project project) {
-        Project savedProject = projectService.createProject(project);
-        return ResponseEntity.ok(savedProject);
+    public ResponseEntity<?> createProject(@RequestBody Project project) {
+        if (project.getLinkToProject() != null && !linkVerificationService.isLinkActive(project.getLinkToProject())) {
+            Map<String, String> response = new HashMap<>();
+            response.put("error", "The provided project link is not active or reachable.");
+            return ResponseEntity.badRequest().body(response); // Return a 400 response with error message
+        }
+        else {
+            Project savedProject = projectService.createProject(project);
+            return ResponseEntity.ok(savedProject);
+        }
     }
 
     @PatchMapping("/{projectId}")
