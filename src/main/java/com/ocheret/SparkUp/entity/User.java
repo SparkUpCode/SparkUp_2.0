@@ -1,7 +1,7 @@
 package com.ocheret.SparkUp.entity;
 
 import jakarta.persistence.*;
-
+import java.util.List;
 
 @Entity
 @Table(name = "users")
@@ -54,5 +54,15 @@ public class User {
     private String password;
     private String roles; // Could be a comma-separated list like "ROLE_USER,ROLE_ADMIN"
 
+    @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    private List<Project> projects;
+
     // Getters and Setters
+    public List<Project> getProjects() {
+        return projects;
+    }
+
+    public void setProjects(List<Project> projects) {
+        this.projects = projects;
+    }
 }

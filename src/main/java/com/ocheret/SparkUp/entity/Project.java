@@ -17,8 +17,8 @@ public class Project {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks;
     private String linkToProject;
-    @ManyToOne
-    @JoinColumn(name = "owner_id")
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "owner_id", nullable = false)
     private User owner;
 
     public String getLinkToProject() {

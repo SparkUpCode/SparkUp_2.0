@@ -33,16 +33,20 @@ public class ProjectController {
     }
 
     @PostMapping
-    public ResponseEntity<?> createProject(@RequestBody Project project) {
+    public ResponseEntity<?> createProject(@RequestBody Project project, Authentication authentication) {
         if (project.getLinkToProject() != null && !linkVerificationService.isLinkActive(project.getLinkToProject())) {
             Map<String, String> response = new HashMap<>();
             response.put("error", "The provided project link is not active or reachable.");
-            return ResponseEntity.badRequest().body(response); // Return a 400 response with error message
+            return ResponseEntity.badRequest().body(response);
         }
-        else {
-            Project savedProject = projectService.createProject(project);
-            return ResponseEntity.ok(savedProject);
-        }
+        
+        UserDetails userDetails = (UserDetails) authentication.getPrincipal();
+        User currentUser = userRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        
+        project.setOwner(currentUser);
+        Project savedProject = projectService.createProject(project, currentUser);
+        return ResponseEntity.ok(savedProject);
     }
 
     @PatchMapping("/{projectId}")

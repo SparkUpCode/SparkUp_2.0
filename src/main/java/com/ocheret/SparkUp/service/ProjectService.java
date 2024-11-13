@@ -37,7 +37,8 @@ public class ProjectService {
 
     private final String placeholderImage = "/images/placeholder.webp";
 
-    public Project createProject(Project project) {
+    public Project createProject(Project project, User currentUser) {
+        project.setOwner(currentUser);
         List<String> updatedPictures = project.getPictures().stream()
                 .map(this::checkAndReplacePicture)
                 .collect(Collectors.toList());
