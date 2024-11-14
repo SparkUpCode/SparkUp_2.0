@@ -2,9 +2,12 @@ package com.ocheret.SparkUp.entity;
 
 import jakarta.persistence.*;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
 
 @Entity
 @Table(name = "users")
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password"})
 public class User {
     public Long getId() {
         return id;
@@ -55,6 +58,7 @@ public class User {
     private String roles; // Could be a comma-separated list like "ROLE_USER,ROLE_ADMIN"
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
+    @JsonIgnoreProperties("owner")
     private List<Project> projects;
 
     // Getters and Setters

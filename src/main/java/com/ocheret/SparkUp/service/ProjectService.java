@@ -48,12 +48,26 @@ public class ProjectService {
     }
 
     public List<Project> getAllProjects() {
-        return projectRepository.findAll();
+        List<Project> projects = projectRepository.findAll();
+        projects.forEach(project -> {
+            project.getTasks().size();
+            if (project.getOwner() != null) {
+                project.getOwner().getUsername();
+            }
+        });
+        return projects;
     }
 
     public Project getProjectById(Long projectId) {
-        Optional<Project> project = projectRepository.findById(projectId);
-        return project.orElse(null);
+        return projectRepository.findById(projectId)
+            .map(project -> {
+                project.getTasks().size();
+                if (project.getOwner() != null) {
+                    project.getOwner().getUsername();
+                }
+                return project;
+            })
+            .orElse(null);
     }
 
     public Project updateProjectFields(Long projectId, Map<String, Object> updates) {

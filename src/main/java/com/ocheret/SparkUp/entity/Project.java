@@ -3,8 +3,17 @@ package com.ocheret.SparkUp.entity;
 
 import jakarta.persistence.*;
 import java.util.List;
+import com.fasterxml.jackson.annotation.JsonIdentityInfo;
+import com.fasterxml.jackson.annotation.ObjectIdGenerators;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+@JsonIdentityInfo(
+    generator = ObjectIdGenerators.PropertyGenerator.class,
+    property = "id"
+)
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Project {
 
     @Id
@@ -15,10 +24,12 @@ public class Project {
     @ElementCollection
     private List<String> pictures;
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
     private List<Task> tasks;
     private String linkToProject;
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "owner_id", nullable = false)
+    @JsonIgnoreProperties({"projects", "password", "roles"})
     private User owner;
 
     public String getLinkToProject() {
