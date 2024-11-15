@@ -11,11 +11,11 @@ import com.fasterxml.jackson.annotation.JsonIdentityInfo;
 import com.fasterxml.jackson.annotation.ObjectIdGenerators;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import java.util.List;
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.FetchType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
-@JsonIdentityInfo(
-    generator = ObjectIdGenerators.PropertyGenerator.class,
-    property = "id"
-)   
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Task {
@@ -30,14 +30,17 @@ public class Task {
     private String completionLink;
     private LocalDateTime completedAt;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "project_id")
-    @JsonBackReference
+    @JsonIgnore
     private Project project;
 
     private TaskStatus status = TaskStatus.ACTIVE;
     private String denialComment;
     private LocalDateTime lastStatusChange;
+
+    @ElementCollection
+    private List<String> pictures;
 
     public enum TaskStatus {
         ACTIVE,
@@ -127,5 +130,13 @@ public class Task {
 
     public void setLastStatusChange(LocalDateTime lastStatusChange) {
         this.lastStatusChange = lastStatusChange;
+    }
+
+    public Project getProject() {
+        return project;
+    }
+
+    public void setProject(Project project) {
+        this.project = project;
     }
 }

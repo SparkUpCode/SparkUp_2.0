@@ -3,11 +3,12 @@ package com.ocheret.SparkUp.entity;
 import jakarta.persistence.*;
 import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 
 @Entity
 @Table(name = "users")
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler", "password"})
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class User {
     public Long getId() {
         return id;
@@ -52,10 +53,18 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Column(nullable = false, unique = true)
     private String username;
+
+    @Column(nullable = false)
     private String email;
+
+    @Column(nullable = false)
+    @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;
-    private String roles; // Could be a comma-separated list like "ROLE_USER,ROLE_ADMIN"
+
+    private String roles;
 
     @OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
     @JsonIgnoreProperties("owner")
