@@ -110,4 +110,28 @@ class ProjectServiceTest {
         verify(projectRepository).save(project);
         verify(notificationService).createTaskApprovalNotification(task, project);
     }
+
+    @Test
+    void createProject_WithLongDescription_Success() {
+        // Arrange
+        User user = new User();
+        user.setId(1L);
+        user.setUsername("testUser");
+
+        Project project = new Project();
+        project.setTitle("Test Project");
+        project.setDescription("A".repeat(9000));  // Test with 9,000 characters
+        project.setLinkToProject("https://example.com/" + "a".repeat(150));
+
+        when(projectRepository.save(any(Project.class))).thenReturn(project);
+
+        // Act
+        Project result = projectService.createProject(project, user);
+
+        // Assert
+        assertNotNull(result);
+        assertEquals(9000, result.getDescription().length());
+        assertEquals(user, result.getOwner());
+        verify(projectRepository).save(project);
+    }
 } 
