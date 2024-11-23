@@ -30,6 +30,8 @@ public class Project {
     @JoinColumn(name = "owner_id", nullable = false)
     @JsonIgnoreProperties({"projects", "password", "roles"})
     private User owner;
+    @Enumerated(EnumType.STRING)
+    private Industry industry = Industry.UNDEFINED;
 
     public Project() {
         this.tasks = new ArrayList<>();
@@ -94,6 +96,14 @@ public class Project {
     public void addTask(Task task) {
         tasks.add(task);
         task.setProject(this);
+    }
+
+    public Industry getIndustry() {
+        return industry;
+    }
+
+    public void setIndustry(Industry industry) {
+        this.industry = industry;
     }
 }
 

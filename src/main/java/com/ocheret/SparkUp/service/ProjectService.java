@@ -7,6 +7,7 @@ import com.ocheret.SparkUp.entity.User;
 import com.ocheret.SparkUp.repository.ProjectRepository;
 import com.ocheret.SparkUp.repository.UserRepository;
 import com.ocheret.SparkUp.exception.TaskStateException;
+import com.ocheret.enums.Industry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -94,6 +95,13 @@ public class ProjectService {
         if (updates.containsKey("tasks") && updates.get("tasks") instanceof Map) {
             Map<String, List<Map<String, Object>>> taskUpdates = (Map<String, List<Map<String, Object>>>) updates.get("tasks");
             updateTasks(project, taskUpdates);
+        }
+        if (updates.containsKey("industry") && updates.get("industry") instanceof String) {
+            try {
+                project.setIndustry(Industry.valueOf((String) updates.get("industry")));
+            } catch (IllegalArgumentException e) {
+                project.setIndustry(Industry.UNDEFINED);
+            }
         }
 
         return projectRepository.save(project);
