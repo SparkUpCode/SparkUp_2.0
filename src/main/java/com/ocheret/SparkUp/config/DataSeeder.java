@@ -5,6 +5,7 @@ import com.ocheret.SparkUp.entity.Task;
 import com.ocheret.SparkUp.entity.User;
 import com.ocheret.SparkUp.repository.ProjectRepository;
 import com.ocheret.SparkUp.repository.UserRepository;
+import com.ocheret.enums.DevelopmentStage;
 import com.ocheret.enums.Industry;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -52,6 +53,7 @@ public class DataSeeder {
             adminProject.setOwner(adminUser);
             adminProject.setTasks(new ArrayList<>());
             adminProject.setIndustry(Industry.SAAS);
+            adminProject.setDevelopmentStage(DevelopmentStage.SETUP_AND_DEVELOPMENT);
 
             // Create sample tasks for the project
             Task task1 = new Task();

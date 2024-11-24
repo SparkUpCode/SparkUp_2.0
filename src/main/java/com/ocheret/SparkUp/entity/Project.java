@@ -1,5 +1,8 @@
 package com.ocheret.SparkUp.entity;
 
+import com.ocheret.enums.DevelopmentStage;
+import com.ocheret.enums.Industry;
+
 
 import jakarta.persistence.*;
 import java.util.List;
@@ -32,6 +35,16 @@ public class Project {
     private User owner;
     @Enumerated(EnumType.STRING)
     private Industry industry = Industry.UNDEFINED;
+    @Enumerated(EnumType.STRING)
+    private DevelopmentStage developmentStage = DevelopmentStage.IDEATION_AND_PLANNING;
+    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private IdeationDetails ideationDetails;
+    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private SetupDetails setupDetails;
+    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private LaunchDetails launchDetails;
+    @OneToOne(mappedBy = "project", cascade = CascadeType.ALL, orphanRemoval = true)
+    private ScalingDetails scalingDetails;
 
     public Project() {
         this.tasks = new ArrayList<>();
@@ -104,6 +117,40 @@ public class Project {
 
     public void setIndustry(Industry industry) {
         this.industry = industry;
+    }
+
+    public DevelopmentStage getDevelopmentStage() {
+        return developmentStage;
+    }
+
+    public void setDevelopmentStage(DevelopmentStage developmentStage) {
+        this.developmentStage = developmentStage;
+    }
+
+    public StageDetails getCurrentStageDetails() {
+        StageDetails details = switch (developmentStage) {
+            case IDEATION_AND_PLANNING -> ideationDetails != null ? ideationDetails : new IdeationDetails();
+            case SETUP_AND_DEVELOPMENT -> setupDetails != null ? setupDetails : new SetupDetails();
+            case LAUNCH_AND_EARLY_GROWTH -> launchDetails != null ? launchDetails : new LaunchDetails();
+            case SCALING_AND_EXPANSION -> scalingDetails != null ? scalingDetails : new ScalingDetails();
+        };
+        if (details.getProject() == null) {
+            details.setProject(this);
+        }
+        return details;
+    }
+
+    public void updateStageDetails(StageDetails details) {
+        if (details instanceof IdeationDetails) {
+            this.ideationDetails = (IdeationDetails) details;
+        } else if (details instanceof SetupDetails) {
+            this.setupDetails = (SetupDetails) details;
+        } else if (details instanceof LaunchDetails) {
+            this.launchDetails = (LaunchDetails) details;
+        } else if (details instanceof ScalingDetails) {
+            this.scalingDetails = (ScalingDetails) details;
+        }
+        details.setProject(this);
     }
 }
 

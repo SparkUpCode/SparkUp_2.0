@@ -8,6 +8,8 @@ import com.ocheret.SparkUp.repository.ProjectRepository;
 import com.ocheret.SparkUp.repository.UserRepository;
 import com.ocheret.SparkUp.exception.TaskStateException;
 import com.ocheret.enums.Industry;
+import com.ocheret.enums.DevelopmentStage;
+import com.ocheret.SparkUp.entity.StageDetails;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
@@ -20,7 +22,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
+import java.lang.reflect.Field;
 @Service
 public class ProjectService {
 
@@ -101,6 +103,13 @@ public class ProjectService {
                 project.setIndustry(Industry.valueOf((String) updates.get("industry")));
             } catch (IllegalArgumentException e) {
                 project.setIndustry(Industry.UNDEFINED);
+            }
+        }
+        if (updates.containsKey("developmentStage") && updates.get("developmentStage") instanceof String) {
+            try {
+                project.setDevelopmentStage(DevelopmentStage.valueOf((String) updates.get("developmentStage")));
+            } catch (IllegalArgumentException e) {
+                project.setDevelopmentStage(DevelopmentStage.IDEATION_AND_PLANNING);
             }
         }
 
@@ -229,5 +238,42 @@ public class ProjectService {
         } catch (IOException e) {
             throw new RuntimeException("Placeholder image not found");
         }
+    }
+
+    public StageDetails updateStageDetails(Long projectId, StageDetails details) {
+        Project project = getProjectById(projectId);
+        if (project == null) {
+            throw new RuntimeException("Project not found");
+        }
+        
+        // Only update non-null fields
+        StageDetails currentDetails = project.getCurrentStageDetails();
+        copyNonNullFields(details, currentDetails);
+        
+        project.updateStageDetails(currentDetails);
+        projectRepository.save(project);
+        return currentDetails;
+    }
+
+    private void copyNonNullFields(StageDetails source, StageDetails target) {
+        try {
+            for (Field field : source.getClass().getDeclaredFields()) {
+                field.setAccessible(true);
+                Object value = field.get(source);
+                if (value != null) {
+                    field.set(target, value);
+                }
+            }
+        } catch (IllegalAccessException e) {
+            throw new RuntimeException("Error copying fields", e);
+        }
+    }
+
+    public StageDetails getStageDetails(Long projectId) {
+        Project project = getProjectById(projectId);
+        if (project == null) {
+            throw new RuntimeException("Project not found");
+        }
+        return project.getCurrentStageDetails();
     }
 }
