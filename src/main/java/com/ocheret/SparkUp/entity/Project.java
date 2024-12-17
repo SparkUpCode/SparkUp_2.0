@@ -1,6 +1,5 @@
 package com.ocheret.SparkUp.entity;
 
-
 import jakarta.persistence.*;
 import java.util.List;
 
@@ -13,6 +12,7 @@ public class Project {
 
     private String title;
     private String description;
+    private String creatorUsername;
 
     @ElementCollection
     private List<String> pictures;
@@ -59,7 +59,14 @@ public class Project {
     public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
     }
-// Getters and Setters
+
+    public String getCreatorUsername() {
+        return creatorUsername;
+    }
+
+    public void setCreatorUsername(String creatorUsername) {
+        this.creatorUsername = creatorUsername;
+    }
 }
 
 

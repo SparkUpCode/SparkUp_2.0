@@ -4,8 +4,12 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ocheret.SparkUp.entity.Project;
 import com.ocheret.SparkUp.entity.Task;
 import com.ocheret.SparkUp.repository.ProjectRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.ClassPathResource;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -19,15 +23,29 @@ import java.util.stream.Collectors;
 @Service
 public class ProjectService {
 
+    private static final Logger logger = LoggerFactory.getLogger(ProjectService.class);
+
     @Autowired
     private ProjectRepository projectRepository;
 
     @Autowired
     private ObjectMapper objectMapper;
 
-    private final String placeholderImage = "/images/placeholder.jpeg";
+    private final String placeholderImage = "/images/placeholder.webp";
 
     public Project createProject(Project project) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        logger.debug("Authentication: {}", authentication);
+        logger.debug("Principal: {}", authentication != null ? authentication.getPrincipal() : "null");
+        logger.debug("Authorities: {}", authentication != null ? authentication.getAuthorities() : "null");
+        
+        if (authentication == null || authentication.getPrincipal().equals("anonymousUser")) {
+            throw new SecurityException("User must be authenticated to create a project");
+        }
+        
+        String username = authentication.getName();
+        project.setCreatorUsername(username);
+
         List<String> updatedPictures = project.getPictures().stream()
                 .map(this::checkAndReplacePicture)
                 .collect(Collectors.toList());

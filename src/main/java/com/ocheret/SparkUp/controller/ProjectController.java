@@ -1,6 +1,7 @@
 package com.ocheret.SparkUp.controller;
 
 import com.ocheret.SparkUp.entity.Project;
+import com.ocheret.SparkUp.repository.ProjectRepository;
 import com.ocheret.SparkUp.service.ProjectService;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,6 +17,9 @@ public class ProjectController {
 
     @Autowired
     private ProjectService projectService;
+
+    @Autowired
+    private ProjectRepository projectRepository;
 
     @PostMapping
     public ResponseEntity<Project> createProject(@RequestBody Project project) {
@@ -45,5 +49,11 @@ public class ProjectController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+
+    @GetMapping("/creator/{username}")
+    public ResponseEntity<List<Project>> getProjectsByCreator(@PathVariable String username) {
+        List<Project> projects = projectRepository.findByCreatorUsername(username);
+        return ResponseEntity.ok(projects);
     }
 }
