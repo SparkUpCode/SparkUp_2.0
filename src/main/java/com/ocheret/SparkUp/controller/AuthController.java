@@ -5,6 +5,9 @@ import com.ocheret.SparkUp.dto.AuthResponse;
 import com.ocheret.SparkUp.entity.User;
 import com.ocheret.SparkUp.repository.UserRepository;
 import com.ocheret.SparkUp.security.JwtUtil;
+
+import jakarta.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -59,4 +62,14 @@ public class AuthController {
         final String token = jwtUtil.generateToken(authRequest.getUsername());
         return ResponseEntity.ok(new AuthResponse(token));
     }
+
+  
+    
+    @PostMapping("/validate-token")
+    public ResponseEntity<?> validateToken(HttpServletRequest request) {
+        // The JWT filter will handle the validation
+        // If we reach here, the token is valid
+        return ResponseEntity.ok().build();
+    }
 }
+
