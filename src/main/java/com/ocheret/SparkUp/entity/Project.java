@@ -2,6 +2,7 @@ package com.ocheret.SparkUp.entity;
 
 import jakarta.persistence.*;
 import java.util.List;
+import java.util.Map;
 
 @Entity
 public class Project {
@@ -12,6 +13,9 @@ public class Project {
 
     private String title;
     private String description;
+    private String stage;
+    private String industry;
+    private String linkToProject;
     private String creatorUsername;
 
     @ElementCollection
@@ -19,6 +23,11 @@ public class Project {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks;
+
+    @ElementCollection
+    @MapKeyColumn(name = "key")
+    @Column(name = "value", columnDefinition = "TEXT")
+    private Map<String, String> stageData;
 
     public Long getId() {
         return id;
@@ -44,6 +53,30 @@ public class Project {
         this.description = description;
     }
 
+    public String getStage() {
+        return stage;
+    }
+
+    public void setStage(String stage) {
+        this.stage = stage;
+    }
+
+    public String getIndustry() {
+        return industry;
+    }
+
+    public void setIndustry(String industry) {
+        this.industry = industry;
+    }
+
+    public String getLinkToProject() {
+        return linkToProject;
+    }
+
+    public void setLinkToProject(String linkToProject) {
+        this.linkToProject = linkToProject;
+    }
+
     public List<String> getPictures() {
         return pictures;
     }
@@ -58,6 +91,14 @@ public class Project {
 
     public void setTasks(List<Task> tasks) {
         this.tasks = tasks;
+    }
+
+    public Map<String, String> getStageData() {
+        return stageData;
+    }
+
+    public void setStageData(Map<String, String> stageData) {
+        this.stageData = stageData;
     }
 
     public String getCreatorUsername() {
