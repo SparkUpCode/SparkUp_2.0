@@ -11,12 +11,39 @@ public class Project {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Column(length = 10000)
     private String title;
+
+    @Column(length = 10000)
     private String description;
+
+    @Column(length = 10000)
     private String stage;
+
+    @Column(length = 10000)
     private String industry;
+
+    @Column(length = 10000)
     private String linkToProject;
+
+   
+    @Column(name = "creator_username", length = 10000)
     private String creatorUsername;
+
+    @Column(length = 10000)
+    private String problem;
+
+    @Column(length = 10000)
+    private String solution;
+
+    @Column(length = 10000)
+    private String prototype;
+
+    @Column(length = 10000)
+    private String idealCustomer;
+
+    @Column(length = 10000)
+    private String competitors;
 
     @ElementCollection
     private List<String> pictures;
@@ -28,6 +55,10 @@ public class Project {
     @MapKeyColumn(name = "key")
     @Column(name = "value", columnDefinition = "TEXT")
     private Map<String, String> stageData;
+
+    
+    @Column(length = 10000)
+    private String goals;
 
     public Long getId() {
         return id;
@@ -107,6 +138,54 @@ public class Project {
 
     public void setCreatorUsername(String creatorUsername) {
         this.creatorUsername = creatorUsername;
+    }
+
+    public String getProblem() {
+        return problem;
+    }
+
+    public void setProblem(String problem) {
+        this.problem = problem;
+    }
+
+    public String getSolution() {
+        return solution;
+    }
+
+    public void setSolution(String solution) {
+        this.solution = solution;
+    }
+
+    public String getPrototype() {
+        return prototype;
+    }
+
+    public void setPrototype(String prototype) {
+        this.prototype = prototype;
+    }
+
+    public String getIdealCustomer() {
+        return idealCustomer;
+    }
+
+    public void setIdealCustomer(String idealCustomer) {
+        this.idealCustomer = idealCustomer;
+    }
+
+    public String getCompetitors() {
+        return competitors;
+    }
+
+    public void setCompetitors(String competitors) {
+        this.competitors = competitors;
+    }
+
+    public String getGoals() {
+        return goals;
+    }
+
+    public void setGoals(String goals) {
+        this.goals = goals;
     }
 }
 

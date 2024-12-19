@@ -5,6 +5,7 @@ import com.ocheret.SparkUp.dto.AuthResponse;
 import com.ocheret.SparkUp.entity.User;
 import com.ocheret.SparkUp.repository.UserRepository;
 import com.ocheret.SparkUp.security.JwtUtil;
+import com.ocheret.SparkUp.service.UserService;
 
 import jakarta.servlet.http.HttpServletRequest;
 
@@ -14,6 +15,8 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,6 +27,9 @@ public class AuthController {
     private final PasswordEncoder passwordEncoder;  // PasswordEncoder is now Argon2
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     public AuthController(UserRepository userRepository,
@@ -71,5 +77,8 @@ public class AuthController {
         // If we reach here, the token is valid
         return ResponseEntity.ok().build();
     }
+
+    
+    
 }
 

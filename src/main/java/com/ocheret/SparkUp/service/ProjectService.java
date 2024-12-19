@@ -114,6 +114,24 @@ public class ProjectService {
                 (Map<String, List<Map<String, Object>>>) updates.get("tasks");
             updateTasks(project, taskUpdates);
         }
+        if (updates.containsKey("problem") && updates.get("problem") instanceof String) {
+            project.setProblem((String) updates.get("problem"));
+        }
+        if (updates.containsKey("solution") && updates.get("solution") instanceof String) {
+            project.setSolution((String) updates.get("solution"));
+        }
+        if (updates.containsKey("prototype") && updates.get("prototype") instanceof String) {
+            project.setPrototype((String) updates.get("prototype"));
+        }
+        if (updates.containsKey("idealCustomer") && updates.get("idealCustomer") instanceof String) {
+            project.setIdealCustomer((String) updates.get("idealCustomer"));
+        }
+        if (updates.containsKey("competitors") && updates.get("competitors") instanceof String) {
+            project.setCompetitors((String) updates.get("competitors"));
+        }
+        if (updates.containsKey("goals") && updates.get("goals") instanceof String) {
+            project.setGoals((String) updates.get("goals"));
+        }
 
         return projectRepository.save(project);
     }
