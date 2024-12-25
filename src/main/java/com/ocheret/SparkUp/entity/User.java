@@ -75,6 +75,10 @@ public class User {
     @Transient
     private List<Task> assignedTasks = new ArrayList<>();
 
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.EAGER)
+    @JoinColumn(name = "user_id")
+    private List<WorkExperience> workExperience = new ArrayList<>();
+
     // Getters and Setters
 
     public List<Project> getAssignedProjects() {
@@ -91,5 +95,13 @@ public class User {
 
     public void setAssignedTasks(List<Task> assignedTasks) {
         this.assignedTasks = assignedTasks;
+    }
+
+    public List<WorkExperience> getWorkExperience() {
+        return workExperience;
+    }
+
+    public void setWorkExperience(List<WorkExperience> workExperience) {
+        this.workExperience = workExperience;
     }
 }

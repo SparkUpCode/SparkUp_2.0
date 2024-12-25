@@ -1,6 +1,7 @@
 package com.ocheret.SparkUp.entity;
 
 import com.ocheret.SparkUp.enums.TaskStatus;
+import com.ocheret.SparkUp.enums.TaskCategory;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -24,9 +25,16 @@ public class Task {
 
     private boolean completed;
 
+    @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    @Column(columnDefinition = "task_status")
-    private TaskStatus status = TaskStatus.OPEN;
+    private TaskStatus status;
+
+    @Column(name = "category")
+    @Enumerated(EnumType.STRING)
+    private TaskCategory category;
+
+    @Column(name = "estimated_hours")
+    private Double estimatedHours;
 
     private String assignedUsername;
 
@@ -98,5 +106,21 @@ public class Task {
 
     public void setPullRequestUrl(String pullRequestUrl) {
         this.pullRequestUrl = pullRequestUrl;
+    }
+
+    public TaskCategory getCategory() {
+        return category;
+    }
+
+    public void setCategory(TaskCategory category) {
+        this.category = category;
+    }
+
+    public Double getEstimatedHours() {
+        return estimatedHours;
+    }
+
+    public void setEstimatedHours(Double estimatedHours) {
+        this.estimatedHours = estimatedHours;
     }
 }
